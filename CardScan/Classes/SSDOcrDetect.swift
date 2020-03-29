@@ -125,6 +125,7 @@ struct SSDOcrDetect {
     }
 
     public func predict(image: UIImage) -> String? {
+        SSDOcrDetect.initializeModels()
         guard let pixelBuffer = image.pixelBuffer(width: ssdOcrImageWidth,
                                                   height: ssdOcrImageHeight)
         else {
