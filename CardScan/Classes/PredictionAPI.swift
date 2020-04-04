@@ -53,7 +53,7 @@ struct PredictionAPI{
             for idx in indicies{
                 pickedBoxProbs.append(probs[idx])
                 pickedBoxes.append(subsetBoxes[idx])
-                pickedLabels.append(classIndex + 1)
+                pickedLabels.append((classIndex + 1) % 10 )
             }
         }
         var result: Result = Result()

@@ -165,13 +165,8 @@ struct SSDOcrDetect {
                 var box = result.pickedBoxes[index]
                 var boxCenter = abs(box[3] + box[1]) / 2
                 var boxHeight = abs(box[3] - box[1])
-                if abs(boxCenter - medianCenter) < medianHeight || boxHeight < 1.4 * medianHeight {
-                    if result.pickedLabels[index] == 10{
-                        _cardNumber = _cardNumber + String(0)
-                    }
-                    else {
+                if abs(boxCenter - medianCenter) < medianHeight || boxHeight < 1.2 * medianHeight {
                         _cardNumber = _cardNumber + String(result.pickedLabels[index])
-                    }
                 }
     
             }
