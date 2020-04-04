@@ -145,22 +145,40 @@ struct SSDOcrDetect {
             DetectedOcrBoxes.allBoxes.append(DetectedSSDOcrBox(category: result.pickedLabels[idx], conf: result.pickedBoxProbs[idx], XMin: Double(result.pickedBoxes[idx][0]), YMin: Double(result.pickedBoxes[idx][1]), XMax: Double(result.pickedBoxes[idx][2]), YMax: Double(result.pickedBoxes[idx][3]), imageSize: image.size))
         }
         
-        let leftCordinates = result.pickedBoxes.map{$0[0]}
-        let sortedLeftCordinates = leftCordinates.enumerated().sorted(by: {$0.element < $1.element})
-        let indices = sortedLeftCordinates.map{$0.offset}
-        var _cardNumber: String = ""
+        if (!result.pickedBoxes.isEmpty) {
+            let topCordinates = result.pickedBoxes.map{$0[1]}
+            let bottomCordinates = result.pickedBoxes.map{$0[3]}
+    
+            let medianYmin = topCordinates.sorted(by: <)[topCordinates.count / 2]
+            let medianYmax = bottomCordinates.sorted(by: <)[bottomCordinates.count / 2]
+    
+            let medianHeight = abs(medianYmax - medianYmin)
+            let medianCenter = (medianYmin + medianYmax) / 2
+    
+            let leftCordinates = result.pickedBoxes.map{$0[0]}
+            let sortedLeftCordinates = leftCordinates.enumerated().sorted(by: {$0.element < $1.element})
+            let indices = sortedLeftCordinates.map{$0.offset}
+            var _cardNumber: String = ""
 
-        indices.forEach { index in
-            if result.pickedLabels[index] == 10{
-                _cardNumber = _cardNumber + String(0)
+            indices.forEach { index in
+                // get the box
+                var box = result.pickedBoxes[index]
+                var boxCenter = abs(box[3] + box[1]) / 2
+                var boxHeight = abs(box[3] - box[1])
+                if abs(boxCenter - medianCenter) < medianHeight || boxHeight < 1.4 * medianHeight {
+                    if result.pickedLabels[index] == 10{
+                        _cardNumber = _cardNumber + String(0)
+                    }
+                    else {
+                        _cardNumber = _cardNumber + String(result.pickedLabels[index])
+                    }
+                }
+    
             }
-            else {
-                _cardNumber = _cardNumber + String(result.pickedLabels[index])
+            if CreditCardUtils.isValidNumber(cardNumber: _cardNumber){
+                print(_cardNumber)
+                return _cardNumber
             }
-        }
-        if CreditCardUtils.isValidNumber(cardNumber: _cardNumber){
-            print(_cardNumber)
-            return _cardNumber
         }
         return nil
     }
